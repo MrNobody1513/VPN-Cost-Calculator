@@ -1,0 +1,2058 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاسبه‌گر پیشرفته هزینه پلن فروش</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- Responsive Design --- */
+        @media (max-width: 900px) {
+            .container {
+                max-width: 98vw;
+                padding: 0 0.5rem;
+            }
+            .main-header h1 {
+                font-size: 2rem;
+            }
+            .step-card {
+                padding: 1.2rem 1rem;
+            }
+        }
+        @media (max-width: 700px) {
+            .main-header h1 {
+                font-size: 1.4rem;
+            }
+            .step-card {
+                padding: 0.8rem 0.5rem;
+                margin-bottom: 1.2rem;
+            }
+            .input-group label {
+                font-size: 0.98rem;
+            }
+            .input-field, .select-field {
+                font-size: 0.98rem;
+                padding: 0.6rem;
+            }
+            .btn {
+                font-size: 0.98rem;
+                padding: 0.6rem 1.1rem;
+            }
+            .price-main #custom-plan-price {
+                font-size: 1.5rem;
+            }
+        }
+        @media (max-width: 500px) {
+            .container {
+                padding: 0 0.2rem;
+            }
+            .main-header h1 {
+                font-size: 1.1rem;
+            }
+            .main-header p {
+                font-size: 0.92rem;
+            }
+            .step-card {
+                padding: 0.5rem 0.2rem;
+                margin-bottom: 0.7rem;
+            }
+            .settings-grid {
+                gap: 0.7rem;
+            }
+            .input-group label {
+                font-size: 0.92rem;
+            }
+            .input-field, .select-field {
+                font-size: 0.92rem;
+                padding: 0.45rem;
+            }
+            .btn {
+                font-size: 0.92rem;
+                padding: 0.45rem 0.7rem;
+            }
+            .price-main #custom-plan-price {
+                font-size: 1.1rem;
+            }
+            .price-display-area {
+                padding-top: 0.7rem;
+            }
+            .modal-content {
+                padding: 1rem 0.2rem;
+            }
+        }
+        @media (max-width: 400px) {
+            .main-header h1 {
+                font-size: 0.95rem;
+            }
+            .step-card h2 {
+                font-size: 0.95rem;
+            }
+        }
+        /* جدول ریسپانسیو */
+        @media (max-width: 700px) {
+            .table-container {
+                overflow-x: auto;
+            }
+            #plans-table {
+                font-size: 0.92rem;
+                min-width: 600px;
+            }
+        }
+        @media (max-width: 500px) {
+            #plans-table {
+                font-size: 0.85rem;
+                min-width: 500px;
+            }
+        }
+        /* فونت یکسان برای select و گزینه‌ها حتی هنگام باز شدن کشو */
+        .modal .select-field, .modal .select-field option {
+            font-family: var(--font-family) !important;
+            font-size: 1rem !important;
+        }
+        /* وضوح بیشتر فیلد select در تم تاریک مخصوصاً در مودال‌ها */
+        .modal .select-field {
+            background-color: var(--input-bg-light);
+            color: var(--text-color-light);
+            border: 1.5px solid var(--input-border-light);
+        }
+        body.dark-mode .modal .select-field {
+            background-color: #23243a !important;
+            color: #fff !important;
+            border: 1.5px solid #6a82fb !important;
+            box-shadow: 0 2px 8px 0 rgba(106,130,251,0.10);
+        }
+        .modal .select-field:focus {
+            border-color: var(--button-bg-light);
+            box-shadow: 0 0 0 3px rgba(106,130,251,0.18);
+        }
+        body.dark-mode .modal .select-field:focus {
+            border-color: var(--button-bg-dark) !important;
+            box-shadow: 0 0 0 3px rgba(138,121,247,0.22);
+        }
+        /* دکمه‌های اسکرول به بالا و پایین */
+        .scroll-btn {
+            position: fixed;
+            bottom: 32px;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            z-index: 11000;
+            background: rgba(255,255,255,0.18);
+            color: var(--button-bg-light);
+            box-shadow: 0 8px 32px 0 rgba(31,38,135,0.13), 0 1.5px 8px 0 rgba(106,130,251,0.10);
+            backdrop-filter: blur(10px) saturate(160%);
+            -webkit-backdrop-filter: blur(10px) saturate(160%);
+            opacity: 0.93;
+            border: 1.5px solid rgba(255,255,255,0.35);
+            transition: background 0.25s, color 0.25s, opacity 0.2s, box-shadow 0.2s, border 0.2s;
+        }
+        .scroll-btn:hover {
+            background: rgba(255,255,255,0.32);
+            color: var(--button-hover-bg-light);
+            opacity: 1;
+            box-shadow: 0 12px 32px 0 rgba(31,38,135,0.18), 0 2px 12px 0 rgba(106,130,251,0.13);
+            border: 1.5px solid var(--button-bg-light);
+        }
+        .scroll-btn svg {
+            width: 28px;
+            height: 28px;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.08));
+        }
+        .scroll-btn-left { left: 32px; }
+        .scroll-btn-right { right: 32px; }
+        body.dark-mode .scroll-btn {
+            background: rgba(30,32,60,0.22);
+            color: var(--button-bg-dark);
+            border: 1.5px solid rgba(120,120,180,0.22);
+        }
+        body.dark-mode .scroll-btn:hover {
+            background: rgba(60,60,100,0.32);
+            color: var(--button-hover-bg-dark);
+            border: 1.5px solid var(--button-bg-dark);
+        }
+        @media (max-width: 600px) {
+            .scroll-btn-left { left: 12px; }
+            .scroll-btn-right { right: 12px; }
+            .scroll-btn { width: 40px; height: 40px; font-size: 1.5rem; }
+        }
+        /* رنگ‌بندی textarea اسنپ شات متناسب با تم */
+        #snapshot-textarea {
+            background: var(--card-bg-light) !important;
+            color: var(--text-color-light) !important;
+        }
+        body.dark-mode #snapshot-textarea {
+            background: var(--card-bg-dark) !important;
+            color: var(--text-color-dark) !important;
+        }
+    /* متغیرهای CSS برای مدیریت تم */
+        :root {
+            --profit-green-light: #1dbf73;
+            --profit-green-dark: #4be08a;
+            --number-color-light: #1d2c8f;
+            --number-color-dark: #9faaff;
+            --font-family: 'Vazirmatn', sans-serif;
+
+            /* Light Theme */
+            --bg-gradient-start-light: #e0c3fc;
+            --bg-gradient-end-light: #8ec5fc;
+            --text-color-light: #1a1a2e;
+            --text-color-secondary-light: #5a5a7e;
+            --card-bg-light: rgba(255, 255, 255, 0.25);
+            --card-border-light: rgba(255, 255, 255, 0.4);
+            --input-bg-light: rgba(255, 255, 255, 0.5);
+            --input-border-light: #b0b0d0;
+            --button-bg-light: #6a82fb;
+            --button-text-light: #ffffff;
+            --button-hover-bg-light: #4a62df;
+            --danger-bg-light: #ff6b6b;
+            --danger-hover-bg-light: #e04b4b;
+            --header-color-light: #0d1137;
+            --strong-color-light: #1d2c8f;
+            --table-header-bg-light: rgba(106, 130, 251, 0.2);
+            --action-icon-color-light: #334;
+            --action-icon-hover-bg-light: rgba(0, 0, 0, 0.1);
+
+            /* Dark Theme */
+            --bg-gradient-start-dark: #0f0c29;
+            --bg-gradient-end-dark: #302b63;
+            --text-color-dark: #e0e0e0;
+            --text-color-secondary-dark: #a0a0c0;
+            --card-bg-dark: rgba(20, 20, 40, 0.3);
+            --card-border-dark: rgba(255, 255, 255, 0.1);
+            --input-bg-dark: rgba(0, 0, 0, 0.2);
+            --input-border-dark: #4a4a6a;
+            --button-bg-dark: #8a79f7;
+            --button-text-dark: #ffffff;
+            --button-hover-bg-dark: #6a59d7;
+            --danger-bg-dark: #c04b4b;
+            --danger-hover-bg-dark: #a02b2b;
+            --header-color-dark: #c3c8ff;
+            --strong-color-dark: #9faaff;
+            --table-header-bg-dark: rgba(138, 121, 247, 0.2);
+    /* رنگ اعداد مالی */
+    /* moved selectors out of :root */
+            --action-icon-color-dark: #dde;
+            --action-icon-hover-bg-dark: rgba(255, 255, 255, 0.1);
+
+            /* Universal Variables */
+            --border-radius: 15px;
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            --transition-speed: 0.3s;
+    /* پایان متغیرهای :root */
+
+        .net-profit-value {
+            color: var(--profit-green-light) !important;
+        }
+        body.dark-mode .net-profit-value {
+            color: var(--profit-green-dark) !important;
+        }
+        .number-value {
+            color: var(--number-color-light);
+            font-weight: 700;
+        }
+        body.dark-mode .number-value {
+            color: var(--number-color-dark);
+        }
+        .max-discount-value, .max-discount-percent-value {
+            color: var(--danger-bg-light) !important;
+        }
+        body.dark-mode .max-discount-value, body.dark-mode .max-discount-percent-value {
+            color: var(--danger-bg-dark) !important;
+        }
+        }
+
+    /* استایل‌های پایه و چیدمان */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            margin: 0;
+            padding: 2rem 1rem;
+            background: linear-gradient(45deg, var(--bg-gradient-start-light), var(--bg-gradient-end-light));
+            background-size: 400% 400%;
+            color: var(--text-color-light);
+            transition: background var(--transition-speed) ease-in-out, color var(--transition-speed) ease-in-out;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(45deg, var(--bg-gradient-start-dark), var(--bg-gradient-end-dark));
+            background-size: 400% 400%;
+            color: var(--text-color-dark);
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .main-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--header-color-light);
+        }
+        body.dark-mode .main-header { color: var(--header-color-dark); }
+        .main-header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .main-header p { font-size: 1.1rem; color: var(--text-color-secondary-light); }
+        body.dark-mode .main-header p { color: var(--text-color-secondary-dark); }
+
+    /* استایل کارت‌های مرحله‌ای */
+        .step-card {
+            background: var(--card-bg-light);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--card-border-light);
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow);
+            transition: all var(--transition-speed) ease;
+            margin-bottom: 2rem;
+        }
+
+        body.dark-mode .step-card {
+            background: var(--card-bg-dark);
+            border: 1px solid var(--card-border-dark);
+        }
+
+        .step-card h2 {
+            margin-top: 0;
+            font-size: 1.6rem;
+            border-bottom: 2px solid var(--button-bg-light);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+            color: var(--header-color-light);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        body.dark-mode .step-card h2 {
+            border-bottom-color: var(--button-bg-dark);
+            color: var(--header-color-dark);
+        }
+
+    /* استایل عناصر رابط کاربری (دکمه‌ها، ورودی‌ها و ...) */
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--button-bg-light);
+            color: var(--button-text-light);
+            font-family: var(--font-family);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color var(--transition-speed) ease, transform var(--transition-speed) ease;
+            text-align: center;
+        }
+
+        body.dark-mode .btn {
+            background-color: var(--button-bg-dark);
+            color: var(--button-text-dark);
+        }
+
+        .btn:hover {
+            background-color: var(--button-hover-bg-light);
+            transform: translateY(-2px);
+        }
+        body.dark-mode .btn:hover { background-color: var(--button-hover-bg-dark); }
+
+        .btn-danger { background-color: var(--danger-bg-light); }
+        body.dark-mode .btn-danger { background-color: var(--danger-bg-dark); }
+        .btn-danger:hover { background-color: var(--danger-hover-bg-light); }
+        body.dark-mode .btn-danger:hover { background-color: var(--danger-hover-bg-dark); }
+
+        .input-group { margin-bottom: 1rem; }
+        .input-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        .input-field, .select-field {
+            width: 100%; padding: 0.75rem; border-radius: 8px;
+            border: 1px solid var(--input-border-light);
+            background-color: var(--input-bg-light);
+            color: var(--text-color-light);
+            font-family: var(--font-family); font-size: 1rem;
+            transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+        }
+
+        body.dark-mode .input-field, body.dark-mode .select-field {
+            border-color: var(--input-border-dark);
+            background-color: var(--input-bg-dark);
+            color: var(--text-color-dark);
+        }
+
+        .input-field:focus, .select-field:focus {
+            outline: none;
+            border-color: var(--button-bg-light);
+            box-shadow: 0 0 0 3px rgba(106, 130, 251, 0.4);
+        }
+
+        body.dark-mode .input-field:focus, body.dark-mode .select-field:focus {
+            border-color: var(--button-bg-dark);
+            box-shadow: 0 0 0 3px rgba(138, 121, 247, 0.4);
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid var(--input-border-light);
+            margin: 2rem 0;
+        }
+        body.dark-mode hr { border-top-color: var(--input-border-dark); }
+
+    /* استایل لیست‌ها و آیتم‌ها */
+        .list-container {
+            margin-top: 1.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 10px; /* For scrollbar spacing */
+        }
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            background: var(--input-bg-light);
+            transition: background-color var(--transition-speed);
+        }
+        .list-item:hover { background: rgba(106, 130, 251, 0.15); }
+        body.dark-mode .list-item { background: var(--input-bg-dark); }
+        body.dark-mode .list-item:hover { background: rgba(138, 121, 247, 0.15); }
+
+        .item-actions { display: flex; gap: 0.5rem; }
+        .action-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        .action-btn:hover {
+            background: var(--action-icon-hover-bg-light);
+            transform: scale(1.1);
+        }
+        body.dark-mode .action-btn:hover { background: var(--action-icon-hover-bg-dark); }
+
+        .action-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--action-icon-color-light);
+        }
+        body.dark-mode .action-btn svg { fill: var(--action-icon-color-dark); }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        @media (max-width: 600px) {
+            .settings-grid {
+            grid-template-columns: 1fr;
+            }
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            border-bottom: 1px dotted;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+    /* استایل نتایج و نمودارها */
+        .results-section h3 {
+            margin-top: 2rem; margin-bottom: 1rem;
+            color: var(--header-color-light);
+        }
+        body.dark-mode .results-section h3 { color: var(--header-color-dark); }
+        .results-section p { margin: 0.5rem 0; }
+        .results-section strong { color: var(--strong-color-light); font-weight: 600; }
+        body.dark-mode .results-section strong { color: var(--strong-color-dark); }
+
+    /* استایل جدول */
+        .table-container {
+            margin-top: 1.5rem;
+            overflow-x: auto;
+        }
+        #plans-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+        }
+        #plans-table th, #plans-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--input-border-light);
+        }
+        body.dark-mode #plans-table th, body.dark-mode #plans-table td {
+            border-bottom: 1px solid var(--input-border-dark);
+        }
+        #plans-table th {
+            background-color: var(--table-header-bg-light);
+            font-weight: 600;
+        }
+        body.dark-mode #plans-table th { background-color: var(--table-header-bg-dark); }
+        #plans-table tbody tr:last-child td { border-bottom: none; }
+
+    /* استایل نمودار تفکیک هزینه */
+        .chart-container {
+            margin-top: 1rem;
+            width: 100%;
+            height: 230px;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            padding: 2.5rem 1rem 1rem 1rem;
+            border-radius: var(--border-radius);
+            background: var(--input-bg-light);
+            gap: 1rem;
+        }
+        body.dark-mode .chart-container { background: var(--input-bg-dark); }
+
+        .chart-bar-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+        }
+
+        .chart-bar {
+            width: 80%;
+            max-width: 50px;
+            border-radius: 5px 5px 0 0;
+            transition: height 0.5s ease-out;
+            position: relative;
+            margin-top: auto;
+        }
+
+        .chart-bar .bar-label {
+            position: absolute;
+            top: -25px;
+            width: 100%;
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-color-light);
+            font-size: 0.9rem;
+        }
+        body.dark-mode .chart-bar .bar-label { color: var(--text-color-dark); }
+
+        .chart-category-label {
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        #server-bar { background-color: #3a86ff; }
+        #domain-bar { background-color: #ffbe0b; }
+        #other-bar { background-color: #fb5607; }
+
+    /* نمایش قیمت پلن سفارشی */
+        .price-display-area {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--input-border-light);
+            text-align: center;
+        }
+        body.dark-mode .price-display-area {
+            border-top-color: var(--input-border-dark);
+        }
+
+        .price-main {
+            margin-bottom: 0.5rem;
+        }
+
+        #custom-plan-price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--strong-color-light);
+            display: block;
+        }
+        body.dark-mode #custom-plan-price {
+            color: var(--strong-color-dark);
+        }
+
+        .price-label {
+            font-size: 1rem;
+            color: var(--text-color-secondary-light);
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+        body.dark-mode .price-label {
+            color: var(--text-color-secondary-dark);
+        }
+        
+        #custom-plan-net-profit {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--strong-color-light);
+            opacity: 0.85;
+        }
+        body.dark-mode #custom-plan-net-profit {
+            color: var(--strong-color-dark);
+        }
+
+    /* سوییچر تغییر تم */
+        .theme-switcher {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 28px;
+        }
+        .switch input { display: none; }
+        /* Sun & Moon icons for theme switcher */
+        .slider .theme-icon {
+            position: absolute;
+            top: 4px;
+            width: 20px;
+            height: 20px;
+            transition: opacity 0.3s, left 0.3s, right 0.3s;
+            pointer-events: none;
+        }
+        .slider .theme-icon.sun {
+            left: 7px;
+            opacity: 1;
+            color: #ffd600;
+        }
+        .slider .theme-icon.moon {
+            right: 7px;
+            opacity: 0.7;
+            color: #1976d2;
+        }
+        .switch input:checked + .slider .theme-icon.sun {
+            opacity: 0.3;
+        }
+        .switch input:checked + .slider .theme-icon.moon {
+            opacity: 1;
+        }
+        /* Generic slider for theme switcher */
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--input-bg-light);
+            border: 1.5px solid var(--input-border-light);
+            box-shadow: 0 2px 8px #0001;
+            transition: background 0.3s, border 0.3s;
+            border-radius: 34px;
+        }
+        body.dark-mode .slider {
+            background: var(--input-bg-dark);
+            border: 1.5px solid var(--input-border-dark);
+        }
+        .slider:before {
+            position: absolute;
+            content: '';
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            top: 2.5px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 1px 4px #0001;
+            transition: transform 0.3s, background 0.3s;
+        }
+        .switch input:checked + .slider:before {
+            transform: translateX(30px);
+            background: #fff;
+        }
+        .slider.currency-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--input-bg-light);
+            border: 1.5px solid var(--input-border-light);
+            box-shadow: 0 2px 8px #0001;
+            transition: background 0.3s, border 0.3s;
+            border-radius: 34px;
+        }
+        body.dark-mode .slider.currency-slider {
+            background: var(--input-bg-dark);
+            border: 1.5px solid var(--input-border-dark);
+        }
+        /* تومان فعال (سبز مدرن) */
+        .switch input:not(:checked) + .slider.currency-slider {
+            background: linear-gradient(90deg, #4be08a 0%, #b2f7cc 100%);
+            border: 1.5px solid #4be08a;
+            box-shadow: 0 2px 8px #4be08a33;
+        }
+        body.dark-mode .switch input:not(:checked) + .slider.currency-slider {
+            background: linear-gradient(90deg, #4be08a 0%, #23243a 100%);
+            border: 1.5px solid #4be08a;
+        }
+        /* دلار فعال */
+        .switch input:checked + .slider.currency-slider {
+            background: var(--input-bg-light);
+            border: 1.5px solid var(--input-border-light);
+            box-shadow: 0 2px 8px #0001;
+        }
+        body.dark-mode .switch input:checked + .slider.currency-slider {
+            background: var(--input-bg-dark);
+            border: 1.5px solid var(--input-border-dark);
+        }
+        .slider.currency-slider:before {
+            position: absolute;
+            content: '';
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            top: 2.5px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 1px 4px #0001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s, background 0.3s;
+        }
+        .switch input:checked + .slider.currency-slider:before {
+            transform: translateX(30px);
+            background: #fff;
+        }
+        /* آیکون ارز داخل دکمه */
+        .slider.currency-slider .currency-icon {
+            position: absolute;
+            top: 6px;
+            left: 8px;
+            width: 14px;
+            height: 14px;
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 0.3s, left 0.3s;
+        }
+        .switch input:checked + .slider.currency-slider .currency-icon {
+            left: 38px;
+        }
+        .slider.currency-slider .currency-icon.toman {
+            opacity: 1;
+            fill: #ffd600;
+        }
+        .slider.currency-slider .currency-icon.usd {
+            opacity: 0;
+        }
+        .switch input:checked + .slider.currency-slider .currency-icon.toman {
+            opacity: 0;
+        }
+        .switch input:checked + .slider.currency-slider .currency-icon.usd {
+            opacity: 1;
+            fill: #1976d2;
+        }
+
+    /* استایل مودال‌ها */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; overflow: auto;
+            background-color: rgba(0,0,0,0.5); animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        .modal-content {
+            margin: 10% auto; padding: 2rem; width: 90%; max-width: 500px; position: relative;
+            animation: slideIn 0.3s;
+        }
+        @keyframes slideIn { from { transform: translateY(-50px); } to { transform: translateY(0); } }
+        .close-btn {
+            color: #aaa; position: absolute; top: 15px; left: 20px;
+            font-size: 28px; font-weight: bold; cursor: pointer;
+        }
+        .close-btn:hover, .close-btn:focus {
+            color: var(--danger-bg-light); text-decoration: none;
+        }
+        body.dark-mode .close-btn:hover, body.dark-mode .close-btn:focus { color: var(--danger-bg-dark); }
+        .modal-buttons { display: flex; gap: 1rem; margin-top: 1.5rem; }
+
+    /* استایل فوتر */
+        .footer { text-align: center; margin-top: 3rem; padding: 1rem; color: var(--text-color-secondary-light); }
+        body.dark-mode .footer { color: var(--text-color-secondary-dark); }
+
+        .footer-links {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: var(--text-color-secondary-light);
+            text-decoration: none;
+            transition: color var(--transition-speed) ease;
+            font-weight: 500;
+        }
+        body.dark-mode .footer-links a {
+            color: var(--text-color-secondary-dark);
+        }
+        .footer-links a:hover {
+            color: var(--strong-color-light);
+            text-decoration: underline;
+        }
+        body.dark-mode .footer-links a:hover {
+            color: var(--strong-color-dark);
+        }
+
+        /* اسکرول افقی برای جدول در موبایل */
+        .table-container {
+            -webkit-overflow-scrolling: touch;
+        }
+
+    /* رنگ عدد نقطه سر به سر در تم تاریک */
+    body.dark-mode #custom-plan-break-even,
+    body.dark-mode .break-even-number {
+        color: var(--strong-color-dark) !important;
+    }
+
+    </style>
+</head>
+<body class="dark-mode">
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; position: relative; z-index: 100;">
+        <!-- Currency Switcher Right -->
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1.2rem; margin-right: 1.2rem;">
+            <span style="font-weight:600; font-size:1.05rem; margin-right: 0.2rem;">تومان</span>
+            <label class="switch currency-switch-switch" style="width:60px; height:28px; margin:0 0.2rem;">
+                <input type="checkbox" id="currency-switch">
+                <span class="slider currency-slider">
+                    <!-- تومان آیکون -->
+                    <svg class="currency-icon toman" viewBox="0 0 20 20"><path d="M10 2a1 1 0 0 1 1 1v1.09c2.83.47 5 2.94 5 5.91 0 3.31-2.69 6-6 6s-6-2.69-6-6c0-2.97 2.17-5.44 5-5.91V3a1 1 0 0 1 1-1zm0 2C7.24 4 5 6.24 5 9c0 2.76 2.24 5 5 5s5-2.24 5-5c0-2.76-2.24-5-5-5zm-1 7h2v2h-2v-2zm0-4h2v3h-2V5z"/></svg>
+                    <!-- دلار آیکون -->
+                    <svg class="currency-icon usd" viewBox="0 0 20 20"><path d="M10 2a1 1 0 0 1 1 1v1.09c2.83.47 5 2.94 5 5.91 0 3.31-2.69 6-6 6s-6-2.69-6-6c0-2.97 2.17-5.44 5-5.91V3a1 1 0 0 1 1-1zm0 2C7.24 4 5 6.24 5 9c0 2.76 2.24 5 5 5s5-2.24 5-5c0-2.76-2.24-5-5-5zm-1 7h2v2h-2v-2zm0-4h2v3h-2V5z"/></svg>
+                </span>
+            </label>
+            <span style="font-weight:600; font-size:1.05rem; margin-left: 0.2rem;">دلار</span>
+            <div id="usd-rate-box" style="display:none; align-items:center; gap:0.4rem;">
+                <label for="usd-rate-input" style="font-size:0.98rem; color:var(--button-bg-light); font-weight:600; margin:0 0.2rem; display:flex; align-items:center; gap:0.2rem;">
+                    <svg style="width:18px;height:18px;vertical-align:middle;fill:var(--button-bg-light);" viewBox="0 0 24 24"><path d="M12 1C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1zm0 2c4.963 0 9 4.037 9 9s-4.037 9-9 9-9-4.037-9-9 4.037-9 9-9zm-.75 3v1.05c-1.7.18-3.25 1.13-3.25 2.7 0 1.13.87 1.97 2.13 2.36l1.12.33v3.11c-1.01-.13-1.7-.7-1.7-1.36h-1.5c0 1.36 1.36 2.36 3.2 2.5V19h1.5v-1.05c1.7-.18 3.25-1.13 3.25-2.7 0-1.13-.87-1.97-2.13-2.36l-1.12-.33V9.45c1.01.13 1.7.7 1.7 1.36h1.5c0-1.36-1.36-2.36-3.2-2.5V5h-1.5zm0 2.2c.5-.04 1.01-.04 1.5 0v2.05c-.5-.04-1.01-.04-1.5 0V7.2zm1.5 4.8v2.05c-.5.04-1.01.04-1.5 0v-2.05c.5-.04 1.01-.04 1.5 0z"/></svg>
+                    نرخ دلار به تومان
+                </label>
+                <input type="number" id="usd-rate-input" placeholder="مثلاً ۶۵,۰۰۰" min="1" style="width:170px; border-radius:8px; border:1.5px solid var(--input-border-light); padding:0.5rem 1.2rem; font-family:inherit; font-size:1.08rem; background:var(--input-bg-light); color:var(--text-color-light); box-shadow:0 2px 8px #6a82fb22; outline:none; transition:all 0.2s;" />
+            </div>
+        </div>
+        <!-- Theme Switcher Left -->
+        <div class="theme-switcher" style="left:unset; right:unset; top:1.2rem; left:1.2rem;">
+            <label class="switch">
+                <input type="checkbox" id="theme-toggle" checked>
+                <span class="slider">
+                    <!-- Sun Icon -->
+                    <svg class="theme-icon sun" viewBox="0 0 24 24" fill="none" width="20" height="20"><circle cx="12" cy="12" r="5" fill="currentColor"/><g stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></g></svg>
+                    <!-- Moon Icon -->
+                    <svg class="theme-icon moon" viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M21 12.79A9 9 0 0 1 12.21 3a7 7 0 1 0 8.79 9.79z" fill="currentColor"/></svg>
+                </span>
+            </label>
+        </div>
+    </div>
+
+    <div class="container">
+        <header class="main-header">
+            <h1>محاسبه‌گر پیشرفته هزینه پلن فروش</h1>
+            <p>هزینه‌های ثابت و متغیر خود را مدیریت کرده و قیمت نهایی را با دقت بالا محاسبه کنید.</p>
+        </header>
+
+        <section class="step-card">
+            <h2>💻 مدیریت سرورها</h2>
+            <button class="btn" id="show-add-server-modal">افزودن سرور</button>
+            <div id="server-list-container" class="list-container"></div>
+        </section>
+
+        <section class="step-card">
+            <h2>🌐 مدیریت دامنه‌ها</h2>
+            <button class="btn" id="show-add-domain-modal">افزودن دامنه</button>
+            <div id="domain-list-container" class="list-container"></div>
+        </section>
+
+        <section class="step-card">
+            <h2>💸 مدیریت سایر هزینه‌ها</h2>
+            <button class="btn" id="show-add-other-cost-modal">افزودن هزینه</button>
+            <div id="other-cost-list-container" class="list-container"></div>
+        </section>
+
+        <section class="step-card">
+            <h2>⚙️ تنظیمات و متغیرها</h2>
+            <div class="settings-grid">
+                <div class="input-group">
+                    <label for="total-users">تعداد کل کاربران فعال</label>
+                    <input type="number" id="total-users" class="input-field" value="" placeholder="مثلاً 100" min="1" step="1">
+                </div>
+                <div class="input-group">
+                    <label for="maintenance-profit">
+                        درصد سود نگهداری
+                        <span class="tooltip">?
+                            <span class="tooltiptext">این سود فقط روی هزینه‌های ثابت (سرور، دامنه و...) اعمال می‌شود.</span>
+                        </span>
+                    </label>
+                    <input type="number" id="maintenance-profit" class="input-field" value="" placeholder="مثلاً 20" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="traffic-price">قیمت خرید هر گیگ ترافیک (تومان)</label>
+                    <input type="number" id="traffic-price" class="input-field" value="" placeholder="مثلاً 1000" min="1" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="traffic-profit">
+                        درصد سود ترافیک
+                        <span class="tooltip">?
+                            <span class="tooltiptext">این سود فقط روی هزینه ترافیک مصرفی هر پلن اعمال می‌شود.</span>
+                        </span>
+                    </label>
+                    <input type="number" id="traffic-profit" class="input-field" value="" placeholder="مثلاً 50" min="0" step="0.01">
+                </div>
+            </div>
+        </section>
+
+        <section class="step-card results-section">
+            <h2>📊 نتایج محاسبات</h2>
+            <h3>هزینه‌های ثابت</h3>
+            <p>هزینه روزانه سرورها: <strong id="server-daily-cost">۰ تومان</strong></p>
+            <p>هزینه روزانه دامنه‌ها: <strong id="domain-daily-cost">۰ تومان</strong></p>
+            <p>سایر هزینه‌های روزانه: <strong id="other-daily-cost">۰ تومان</strong></p>
+            <p><strong>جمع کل هزینه ثابت روزانه:</strong> <strong id="total-daily-fixed-cost">۰ تومان</strong></p>
+            <p><strong>جمع کل هزینه ثابت ماهانه:</strong> <strong id="total-monthly-fixed-cost">۰ تومان</strong></p>
+
+            <hr>
+            <h3>نمودار تفکیک هزینه‌های ثابت</h3>
+            <div class="chart-container">
+                <div class="chart-bar-wrapper">
+                    <div id="server-bar" class="chart-bar" style="height: 0%;">
+                            <span id="server-bar-label" class="bar-label">${toPersianNumber(Math.round(serverPercent))}%</span>
+                    </div>
+                    <span class="chart-category-label">سرورها</span>
+                </div>
+                <div class="chart-bar-wrapper">
+                    <div id="domain-bar" class="chart-bar" style="height: 0%;">
+                            <span id="domain-bar-label" class="bar-label">${toPersianNumber(Math.round(domainPercent))}%</span>
+                    </div>
+                    <span class="chart-category-label">دامنه‌ها</span>
+                </div>
+                <div class="chart-bar-wrapper">
+                    <div id="other-bar" class="chart-bar" style="height: 0%;">
+                            <span id="other-bar-label" class="bar-label">${toPersianNumber(Math.round(otherPercent))}%</span>
+                    </div>
+                    <span class="chart-category-label">سایر</span>
+                </div>
+            </div>
+
+            <hr>
+            <h3>هزینه تمام شده برای هر کاربر</h3>
+            <p>هزینه نگهداری روزانه (بدون سود): <strong id="user-daily-cost-no-profit">۰ تومان</strong></p>
+            <p>هزینه نگهداری روزانه (با سود): <strong id="user-daily-cost-with-profit">۰ تومان</strong></p>
+            <p>هزینه نگهداری ماهانه (بدون سود): <strong id="user-monthly-cost-no-profit">۰ تومان</strong></p>
+            <p>هزینه نگهداری ماهانه (با سود): <strong id="user-monthly-cost-with-profit">۰ تومان</strong></p>
+            <p>هزینه هر گیگ ترافیک (بدون سود): <strong id="traffic-cost-no-profit">۰ تومان</strong></p>
+            <p>هزینه هر گیگ ترافیک (با سود): <strong id="traffic-cost-with-profit">۰ تومان</strong></p>
+        </section>
+
+        <section class="step-card">
+            <h2>🛒 قیمت‌گذاری پلن سفارشی</h2>
+            <div class="settings-grid">
+                <div class="input-group">
+                    <label for="custom-plan-duration">مدت زمان (روز)</label>
+                    <input type="number" id="custom-plan-duration" class="input-field" value="" placeholder="مثلاً 30" min="1" step="1">
+                </div>
+                <div class="input-group">
+                    <label for="custom-plan-traffic">حجم ترافیک (GB)</label>
+                    <input type="number" id="custom-plan-traffic" class="input-field" value="" placeholder="مثلاً 50" min="1" step="0.01">
+                </div>
+                <div class="input-group" style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                    <label for="custom-plan-discount" style="margin-bottom:0.5rem;">درصد تخفیف (%)</label>
+                    <input type="number" id="custom-plan-discount" class="input-field" style="max-width:200px;text-align:center;" value="" placeholder="مثلاً 10" min="0" max="100" step="0.01">
+                </div>
+            </div>
+            <div class="price-display-area">
+                <div class="price-main">
+                    <span class="price-label">قیمت فروش پلن:</span>
+                    <span id="custom-plan-price" class="number-value" style="text-decoration: none;">۰ تومان</span>
+                    <span id="custom-plan-price-discounted" class="number-value" style="display:none;color:#1dbf73;font-size:1.5rem;margin-top:0.2rem;"></span>
+                </div>
+                <div class="custom-plan-base-cost-display">
+                    <span class="price-label">هزینه نگهداری ماهانه (بدون سود):</span>
+                    <span id="custom-plan-base-cost" class="number-value" style="font-size:1.5rem;">۰ تومان</span>
+                </div>
+                <div class="net-profit-display">
+                    <span class="price-label">سود خالص شما:</span>
+                    <div style="display:flex;flex-direction:column;align-items:center;">
+                        <span id="custom-plan-net-profit" class="number-value net-profit-value" style="text-decoration:none;">۰ تومان</span>
+                        <span id="custom-plan-net-profit-discounted" class="number-value net-profit-value" style="display:none;color:#1dbf73;font-size:1.2rem;margin-top:0.2rem;"></span>
+                    </div>
+                </div>
+                <div class="max-discount-display" style="margin-top:0.7rem;">
+                    <span class="price-label">حداکثر پتانسیل تخفیف:</span>
+                    <span id="custom-plan-max-discount" class="max-discount-value" style="font-size:1.2rem;font-weight:600;">۰ تومان</span>
+                    <span id="custom-plan-max-discount-percent" class="max-discount-percent-value" style="display:block;font-size:1rem;font-weight:500;margin-top:0.2rem;">۰٪</span>
+                </div>
+                <div class="break-even-display" style="margin-top:1.5rem;">
+                    <span class="price-label">نقطه سر به سر (تعداد پلن لازم برای پوشش هزینه‌ها):</span>
+                    <span id="custom-plan-break-even" class="break-even-number" style="font-size:1.3rem;font-weight:600;color:var(--strong-color-light);">۰</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="step-card">
+            <h2>📋 تعریف پلن‌های پیش‌فرض</h2>
+            <button class="btn" id="show-add-plan-modal">افزودن پلن</button>
+            <div class="table-container">
+                <table id="plans-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center;">نام پلن</th>
+                            <th style="text-align:center;">مدت<br><span style='font-size:0.9em;color:#888;'>(روز)</span></th>
+                            <th style="text-align:center;">حجم<br><span style='font-size:0.9em;color:#888;'>(GB)</span></th>
+                            <th style="text-align:center;">قیمت نهایی<br><span style='font-size:0.9em;color:#888;'>تومان</span></th>
+                            <th style="text-align:center;">هزینه نگهداری<br><span style='font-size:0.9em;color:#888;'>(بدون سود)</span><br><span style='font-size:0.9em;color:#888;'>تومان</span></th>
+                            <th style="text-align:center;">سود خالص<br><span style='font-size:0.9em;color:#888;'>تومان</span></th>
+                            <th style="text-align:center;">نقطه سر به سر</th>
+                            <th style="text-align:center;">عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- بخش اسنپ شات -->
+        <section class="step-card" id="snapshot-section">
+            <h2>📸 اسنپ شات اطلاعات و نتایج</h2>
+            <div style="margin-bottom:1rem; color:var(--text-color-secondary-light); font-size:1rem;">خلاصه‌ای از اطلاعات وارد شده و نتایج محاسبات شما. می‌توانید این بخش را کپی کنید.</div>
+            <textarea id="snapshot-textarea" readonly style="width:100%;min-height:220px;direction:ltr;font-family:monospace;font-size:1rem;padding:1rem;border-radius:10px;background:rgba(0,0,0,0.05);color:#222;resize:vertical;display:none;"></textarea>
+            <canvas id="snapshot-canvas" style="width:100%;max-width:100%;border-radius:10px;display:block;background:#fff;box-shadow:0 2px 8px #0001;margin-bottom:1rem;"></canvas>
+            <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
+                <button class="btn" id="download-snapshot-btn" style="margin-top:1rem;">دانلود اسنپ شات (عکس)</button>
+            </div>
+            <div id="snapshot-download-msg" style="display:none;color:green;margin-top:0.5rem;text-align:center;">دانلود شد!</div>
+        </section>
+        <footer class="footer">
+            <p>طراحی شده با عشق توسط MrNobody</p>
+            <div class="footer-links">
+                <a href="https://t.me/MrNobodyVPN" target="_blank">کانال تلگرام</a>
+                <a href="https://t.me/MrNobodyvpnsellbot" target="_blank">ربات فروش</a>
+                <a href="https://t.me/MrNobody_VPN" target="_blank">پشتیبانی</a>
+            </div>
+        </footer>
+    </div> <!-- /container -->
+
+    <!-- SVGs for Icons -->
+    <!-- دکمه‌های اسکرول به بالا و پایین -->
+    <button id="scroll-to-top" class="scroll-btn scroll-btn-left" title="برو به بالا" style="display:none">
+        <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="15" stroke="currentColor" stroke-width="1.5" opacity="0.18"/><path d="M10.5 18.5L16 13l5.5 5.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 13v7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+    </button>
+    <button id="scroll-to-bottom" class="scroll-btn scroll-btn-right" title="برو به پایین" style="display:none">
+        <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="15" stroke="currentColor" stroke-width="1.5" opacity="0.18"/><path d="M10.5 13.5L16 19l5.5-5.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 19v-7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+    </button>
+    <svg width="0" height="0" style="display:none;">
+      <symbol id="icon-edit" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></symbol>
+      <symbol id="icon-delete" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></symbol>
+    </svg>
+
+    <!-- Modals -->
+    <div id="server-modal" class="modal">
+        <div class="modal-content step-card">
+            <span class="close-btn" data-modal-id="server-modal">&times;</span>
+            <h2 id="server-modal-title">افزودن سرور جدید</h2>
+            <div class="input-group">
+                <label for="server-name">نام سرور</label>
+                <input type="text" id="server-name" class="input-field" value="" placeholder="مثلاً سرور آلمان">
+            </div>
+            <div class="input-group">
+                <label for="server-cost">هزینه</label>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <input type="number" id="server-cost" class="input-field" value="" placeholder="مثلاً 500000" style="flex:1;" min="1" step="0.01">
+                    <select id="server-currency" class="select-field" style="width:90px;">
+                        <option value="toman">تومان</option>
+                        <option value="usd">دلار</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="server-period">دوره پرداخت</label>
+                <select id="server-period" class="select-field">
+                    <option value="" disabled selected>انتخاب دوره پرداخت</option>
+                    <option value="daily">روزانه</option>
+                    <option value="monthly">ماهانه</option>
+                    <option value="yearly">سالانه</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button id="save-server-btn" class="btn">افزودن</button>
+                <button class="btn btn-danger close-btn-alt" data-modal-id="server-modal">انصراف</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="domain-modal" class="modal">
+        <div class="modal-content step-card">
+            <span class="close-btn" data-modal-id="domain-modal">&times;</span>
+            <h2 id="domain-modal-title">افزودن دامنه جدید</h2>
+             <div class="input-group">
+                <label for="domain-name">نام دامنه</label>
+                <input type="text" id="domain-name" class="input-field" value="" placeholder="مثلاً example.com">
+            </div>
+            <div class="input-group">
+                <label for="domain-cost">هزینه</label>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <input type="number" id="domain-cost" class="input-field" value="" placeholder="مثلاً 250000" style="flex:1;" min="1" step="0.01">
+                    <select id="domain-currency" class="select-field" style="width:90px;">
+                        <option value="toman">تومان</option>
+                        <option value="usd">دلار</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="domain-period">دوره پرداخت</label>
+                <select id="domain-period" class="select-field">
+                    <option value="" disabled selected>انتخاب دوره پرداخت</option>
+                    <option value="daily">روزانه</option>
+                    <option value="yearly">سالانه</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button id="save-domain-btn" class="btn">افزودن</button>
+                <button class="btn btn-danger close-btn-alt" data-modal-id="domain-modal">انصراف</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="other-cost-modal" class="modal">
+        <div class="modal-content step-card">
+            <span class="close-btn" data-modal-id="other-cost-modal">&times;</span>
+            <h2 id="other-cost-modal-title">افزودن هزینه دیگر</h2>
+            <div class="input-group">
+                <label for="other-cost-name">عنوان هزینه</label>
+                <input type="text" id="other-cost-name" class="input-field" value="" placeholder="مثلاً هزینه پنل">
+            </div>
+            <div class="input-group">
+                <label for="other-cost-amount">مبلغ</label>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <input type="number" id="other-cost-amount" class="input-field" value="" placeholder="مثلاً 100000" style="flex:1;" min="1" step="0.01">
+                    <select id="other-cost-currency" class="select-field" style="width:90px;">
+                        <option value="toman">تومان</option>
+                        <option value="usd">دلار</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="other-cost-period">دوره</label>
+                <select id="other-cost-period" class="select-field">
+                    <option value="" disabled selected>انتخاب دوره</option>
+                    <option value="daily">روزانه</option>
+                    <option value="monthly">ماهانه</option>
+                    <option value="yearly">سالانه</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button id="save-other-cost-btn" class="btn">افزودن</button>
+                <button class="btn btn-danger close-btn-alt" data-modal-id="other-cost-modal">انصراف</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-plan-modal" class="modal">
+        <div class="modal-content step-card">
+            <span class="close-btn" data-modal-id="add-plan-modal">&times;</span>
+            <h2 id="add-plan-modal-title">افزودن پلن پیش‌فرض</h2>
+            <div class="input-group">
+                <label for="plan-name">نام پلن</label>
+                <input type="text" id="plan-name" class="input-field" value="" placeholder="مثلاً پلن اقتصادی">
+            </div>
+            <div class="input-group">
+                <label for="plan-duration">مدت زمان (روز)</label>
+                <input type="number" id="plan-duration" class="input-field" value="" placeholder="مثلاً 30" min="1" step="1">
+            </div>
+            <div class="input-group">
+                <label for="plan-traffic">حجم ترافیک (GB)</label>
+                <input type="number" id="plan-traffic" class="input-field" value="" placeholder="مثلاً 50" min="1" step="0.01">
+            </div>
+            <div class="modal-buttons">
+                <button id="add-plan-btn" class="btn">افزودن</button>
+                <button class="btn btn-danger close-btn-alt" data-modal-id="add-plan-modal">انصراف</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // --- مدیریت سویچ تومان/دلار و نرخ دلار ---
+        let globalCurrency = localStorage.getItem('vpn_currency') || 'toman';
+        let usdRate = parseFloat(localStorage.getItem('vpn_usd_rate')) || 0;
+        (function() {
+            document.addEventListener('DOMContentLoaded', function() {
+                const currencySwitch = document.getElementById('currency-switch');
+                const usdRateInput = document.getElementById('usd-rate-input');
+                const usdRateBox = document.getElementById('usd-rate-box');
+                // مقدار اولیه: checked یعنی تومان، خاموش یعنی دلار
+                currencySwitch.checked = globalCurrency === 'toman';
+                usdRateBox.style.display = currencySwitch.checked ? 'none' : 'flex';
+                // تم ورودی دلار با توجه به تم کلی
+                function updateUsdInputTheme() {
+                    if(document.body.classList.contains('dark-mode')) {
+                        usdRateInput.style.background = 'var(--input-bg-dark)';
+                        usdRateInput.style.color = 'var(--text-color-dark)';
+                        usdRateInput.style.border = '1.5px solid var(--input-border-dark)';
+                    } else {
+                        usdRateInput.style.background = 'var(--input-bg-light)';
+                        usdRateInput.style.color = 'var(--text-color-light)';
+                        usdRateInput.style.border = '1.5px solid var(--input-border-light)';
+                    }
+                }
+                updateUsdInputTheme();
+                // تغییر تم هنگام سوییچ
+                document.getElementById('theme-toggle').addEventListener('change', updateUsdInputTheme);
+                usdRateInput.value = usdRate > 0 ? usdRate : '';
+                // رویداد تغییر سویچ
+                currencySwitch.addEventListener('change', function() {
+                    globalCurrency = currencySwitch.checked ? 'toman' : 'usd';
+                    localStorage.setItem('vpn_currency', globalCurrency);
+                    // نمایش باکس نرخ دلار فقط وقتی دلار فعال است (یعنی سویچ خاموش)
+                    if(currencySwitch.checked) {
+                        usdRateBox.style.display = 'none';
+                        usdRateInput.value = '';
+                        usdRateInput.classList.remove('usd-rate-error');
+                    } else {
+                        usdRateBox.style.display = 'flex';
+                        usdRateInput.focus();
+                        // اگر نرخ دلار وارد نشده، هشدار بده
+                        if (!usdRate || usdRate <= 0) {
+                            usdRateInput.classList.add('usd-rate-error');
+                            usdRateInput.setCustomValidity('لطفا نرخ دلار را وارد کنید.');
+                        } else {
+                            usdRateInput.classList.remove('usd-rate-error');
+                            usdRateInput.setCustomValidity('');
+                        }
+                    }
+                });
+                usdRateInput.addEventListener('input', function() {
+                    usdRate = parseFloat(usdRateInput.value) || 0;
+                    localStorage.setItem('vpn_usd_rate', usdRate);
+                    if (!usdRate || usdRate <= 0) {
+                        usdRateInput.classList.add('usd-rate-error');
+                        usdRateInput.setCustomValidity('لطفا نرخ دلار را وارد کنید.');
+                    } else {
+                        usdRateInput.classList.remove('usd-rate-error');
+                        usdRateInput.setCustomValidity('');
+                    }
+                });
+            });
+        })();
+        // دکمه‌های اسکرول به بالا و پایین
+        (function(){
+            const topBtn = document.getElementById('scroll-to-top');
+            const bottomBtn = document.getElementById('scroll-to-bottom');
+            function toggleScrollBtns() {
+                // نمایش دکمه بالا اگر اسکرول بیشتر از 100px باشد
+                if(window.scrollY > 100) topBtn.style.display = 'flex';
+                else topBtn.style.display = 'none';
+                // نمایش دکمه پایین اگر پایین صفحه نیستیم
+                if(window.innerHeight + window.scrollY < document.body.offsetHeight - 100) bottomBtn.style.display = 'flex';
+                else bottomBtn.style.display = 'none';
+            }
+            window.addEventListener('scroll', toggleScrollBtns);
+            window.addEventListener('resize', toggleScrollBtns);
+            document.addEventListener('DOMContentLoaded', toggleScrollBtns);
+            topBtn.addEventListener('click', ()=>window.scrollTo({top:0,behavior:'smooth'}));
+            bottomBtn.addEventListener('click', ()=>window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}));
+        })();
+        document.addEventListener('DOMContentLoaded', () => {
+            // مدیریت وضعیت کلی برنامه
+            let state = {
+                servers: [], domains: [], otherCosts: [], plans: [],
+                settings: { totalUsers: 100, maintenanceProfit: 20, trafficPrice: 1000, trafficProfit: 50 },
+                customPlan: { duration: 30, traffic: 50, discount: 0 }
+            };
+            let editContext = { type: null, index: null };
+
+            // انتخابگرهای عناصر DOM
+            const {
+                totalUsersInput, maintenanceProfitInput, trafficPriceInput, trafficProfitInput,
+                customPlanDurationInput, customPlanTrafficInput, serverDailyCostEl, domainDailyCostEl,
+                otherDailyCostEl, totalDailyFixedCostEl, totalMonthlyFixedCostEl, userDailyCostNoProfitEl,
+                userDailyCostWithProfitEl, userMonthlyCostNoProfitEl, userMonthlyCostWithProfitEl,
+                trafficCostNoProfitEl, trafficCostWithProfitEl, customPlanPriceEl, serverListContainer,
+                domainListContainer, otherCostListContainer, plansTableBody, modals,
+                showAddServerModalBtn, showAddDomainModalBtn, showAddOtherCostModalBtn, showAddPlanModalBtn,
+                saveServerBtn, saveDomainBtn, saveOtherCostBtn, addPlanBtn, themeToggle,
+                serverBar, serverBarLabel, domainBar, domainBarLabel, otherBar, otherBarLabel,
+                customPlanNetProfitEl,
+                customPlanBaseCostEl,
+                customPlanMaxDiscountEl,
+                customPlanMaxDiscountPercentEl
+            } = {
+                totalUsersInput: document.getElementById('total-users'),
+                maintenanceProfitInput: document.getElementById('maintenance-profit'),
+                trafficPriceInput: document.getElementById('traffic-price'),
+                trafficProfitInput: document.getElementById('traffic-profit'),
+                customPlanDurationInput: document.getElementById('custom-plan-duration'),
+                customPlanTrafficInput: document.getElementById('custom-plan-traffic'),
+                serverDailyCostEl: document.getElementById('server-daily-cost'),
+                domainDailyCostEl: document.getElementById('domain-daily-cost'),
+                otherDailyCostEl: document.getElementById('other-daily-cost'),
+                totalDailyFixedCostEl: document.getElementById('total-daily-fixed-cost'),
+                totalMonthlyFixedCostEl: document.getElementById('total-monthly-fixed-cost'),
+                userDailyCostNoProfitEl: document.getElementById('user-daily-cost-no-profit'),
+                userDailyCostWithProfitEl: document.getElementById('user-daily-cost-with-profit'),
+                trafficCostNoProfitEl: document.getElementById('traffic-cost-no-profit'),
+                trafficCostWithProfitEl: document.getElementById('traffic-cost-with-profit'),
+                userMonthlyCostNoProfitEl: document.getElementById('user-monthly-cost-no-profit'),
+                userMonthlyCostWithProfitEl: document.getElementById('user-monthly-cost-with-profit'),
+                customPlanPriceEl: document.getElementById('custom-plan-price'),
+                serverListContainer: document.getElementById('server-list-container'),
+                domainListContainer: document.getElementById('domain-list-container'),
+                otherCostListContainer: document.getElementById('other-cost-list-container'),
+                plansTableBody: document.querySelector('#plans-table tbody'),
+                modals: document.querySelectorAll('.modal'),
+                showAddServerModalBtn: document.getElementById('show-add-server-modal'),
+                showAddDomainModalBtn: document.getElementById('show-add-domain-modal'),
+                showAddOtherCostModalBtn: document.getElementById('show-add-other-cost-modal'),
+                showAddPlanModalBtn: document.getElementById('show-add-plan-modal'),
+                saveServerBtn: document.getElementById('save-server-btn'),
+                saveDomainBtn: document.getElementById('save-domain-btn'),
+                saveOtherCostBtn: document.getElementById('save-other-cost-btn'),
+                addPlanBtn: document.getElementById('add-plan-btn'),
+                themeToggle: document.getElementById('theme-toggle'),
+                serverBar: document.getElementById('server-bar'),
+                serverBarLabel: document.getElementById('server-bar-label'),
+                domainBar: document.getElementById('domain-bar'),
+                domainBarLabel: document.getElementById('domain-bar-label'),
+                otherBar: document.getElementById('other-bar'),
+                otherBarLabel: document.getElementById('other-bar-label'),
+                customPlanNetProfitEl: document.getElementById('custom-plan-net-profit'),
+                customPlanBaseCostEl: document.getElementById('custom-plan-base-cost'),
+                customPlanMaxDiscountEl: document.getElementById('custom-plan-max-discount'),
+                customPlanMaxDiscountPercentEl: document.getElementById('custom-plan-max-discount-percent')
+            };
+
+            // عناصر جدید برای تخفیف پلن سفارشی
+            const customPlanDiscountInput = document.getElementById('custom-plan-discount');
+            const customPlanPriceDiscountedEl = document.getElementById('custom-plan-price-discounted');
+            const customPlanNetProfitDiscountedEl = document.getElementById('custom-plan-net-profit-discounted');
+
+
+            // توابع کمکی و فرمت‌دهی
+            // نمایش عدد سود/ضرر با رنگ و متن مناسب
+            function renderProfitValue(el, value, labelPos = '') {
+                if (value < 0) {
+                    el.textContent = formatCurrency(Math.abs(value)) + ' (ضرر)';
+                    el.style.color = '#ff3b3b';
+                    el.classList.remove('net-profit-value');
+                } else {
+                    el.textContent = formatCurrency(value) + (labelPos ? ' ' + labelPos : '');
+                    el.style.color = '';
+                    el.classList.add('net-profit-value');
+                }
+            }
+            function formatCurrency(num, currency = 'toman') {
+                if (num === null || num === undefined || isNaN(num)) return `<span style='color:#ff3b3b;font-weight:bold;'>نامشخص</span>`;
+                let unit = (globalCurrency === 'usd' && currency === 'usd') ? 'دلار' : 'تومان';
+                // اگر نرخ دلار وارد نشده و ارز روی دلار است، هشدار قرمز نمایش بده
+                if (currency === 'usd' && (!usdRate || usdRate <= 0)) {
+                    return `<span style='color:#ff3b3b;font-weight:bold;'>نامشخص</span>`;
+                }
+                // نمایش اعشاری تا ۲ رقم برای اعداد کوچک
+                let displayNum = Math.abs(num) < 1000 && num % 1 !== 0 ? num.toLocaleString('fa-IR', {maximumFractionDigits:2}) : Math.round(num).toLocaleString('fa-IR');
+                return `${displayNum} ${unit}`;
+            }
+            const getDailyCost = (cost, period) => {
+                const periods = { daily: 1, monthly: 30, yearly: 365 };
+                return (!cost || cost <= 0) ? 0 : cost / (periods[period] || 1);
+            }
+
+            // تبدیل قیمت به تومان بر اساس واحد و نرخ دلار
+            function convertToToman(amount, currency) {
+                if (currency === 'usd') {
+                    if (!usdRate || usdRate <= 0) {
+                        return null; // نشانه خطا
+                    }
+                    return amount * usdRate;
+                }
+                return amount;
+            }
+
+            // ذخیره و بازیابی وضعیت با LocalStorage
+            const saveState = () => localStorage.setItem('vpnCostCalculatorState_v3', JSON.stringify(state));
+            const loadState = () => {
+                const savedState = localStorage.getItem('vpnCostCalculatorState_v3');
+                if (savedState) state = JSON.parse(savedState);
+            };
+
+            // مدیریت تم روشن/تاریک
+            const applyTheme = (isDarkMode) => {
+                document.body.classList.toggle('dark-mode', isDarkMode);
+                localStorage.setItem('theme_v3', isDarkMode ? 'dark' : 'light');
+            };
+            themeToggle.addEventListener('change', (e) => applyTheme(e.target.checked));
+            // پس از تغییر تم، اسنپ شات را دوباره رندر کن تا پس‌زمینه canvas هماهنگ شود
+            themeToggle.addEventListener('change', () => {
+                // مقدار فعلی اسنپ شات را دوباره رندر کن
+                const lines = document.getElementById('snapshot-textarea').value.split('\n');
+                if (lines && lines.length > 0) renderSnapshotCanvas(lines);
+            });
+
+            // مدیریت باز و بسته شدن مودال‌ها
+            const resetEditContext = () => { editContext = { type: null, index: null }; };
+            const openModal = (modalId) => {
+                document.getElementById(modalId).style.display = "block";
+                // مقداردهی اولیه عنوان و دکمه‌ها
+                if(modalId==='server-modal'){
+                    document.getElementById('server-modal-title').textContent = 'افزودن سرور جدید';
+                    document.getElementById('save-server-btn').textContent = 'افزودن';
+                }
+                if(modalId==='domain-modal'){
+                    document.getElementById('domain-modal-title').textContent = 'افزودن دامنه جدید';
+                    document.getElementById('save-domain-btn').textContent = 'افزودن';
+                }
+                if(modalId==='other-cost-modal'){
+                    document.getElementById('other-cost-modal-title').textContent = 'افزودن هزینه دیگر';
+                    document.getElementById('save-other-cost-btn').textContent = 'افزودن';
+                }
+                if(modalId==='add-plan-modal'){
+                    document.getElementById('add-plan-modal-title').textContent = 'افزودن پلن پیش‌فرض';
+                    document.getElementById('add-plan-btn').textContent = 'افزودن';
+                }
+            };
+            const closeModal = (modalId) => {
+                document.getElementById(modalId).style.display = "none";
+                resetEditContext(); // Always reset context on close
+            };
+
+            document.querySelectorAll('.close-btn, .close-btn-alt').forEach(btn => {
+                btn.addEventListener('click', (e) => closeModal(e.target.dataset.modalId));
+            });
+            window.addEventListener('click', (e) => {
+                modals.forEach(modal => { if (e.target === modal) closeModal(modal.id); });
+            });
+
+            // توابع رندر لیست‌ها و جدول‌ها
+            const createItemActions = (type, index) => `
+                <div class="item-actions">
+                    <button class="action-btn edit-btn" data-type="${type}" data-index="${index}" title="ویرایش">
+                        <svg><use xlink:href="#icon-edit"></use></svg>
+                    </button>
+                    <button class="action-btn delete-btn" data-type="${type}" data-index="${index}" title="حذف">
+                        <svg><use xlink:href="#icon-delete"></use></svg>
+                    </button>
+                </div>`;
+
+            const renderLists = () => {
+                const periodText = { daily: 'روزانه', monthly: 'ماهانه', yearly: 'سالانه' };
+                const render = (container, items, type) => {
+                    container.innerHTML = '';
+                    items.forEach((item, index) => {
+                        const div = document.createElement('div');
+                        div.className = 'list-item';
+                        const name = item.name || item.title;
+                        // قیمت اصلی و واحد
+                        let rawCost = item.cost !== undefined ? item.cost : item.amount;
+                        let currency = item.currency || 'toman';
+                        // تبدیل به تومان اگر لازم است
+                        let finalCost = convertToToman(rawCost, currency);
+                        // اگر مقدار ورودی صفر یا نادرست بود، نمایش ۰
+                        let showValue = (!rawCost || isNaN(rawCost) || rawCost <= 0 || finalCost === null) ? `<span style='color:#ff3b3b;font-weight:bold;'>نامشخص</span>` : formatCurrency(finalCost, currency);
+                        // نمایش واحد اصلی کنار قیمت ورودی
+                        let unitLabel = currency === 'usd' ? 'دلار' : 'تومان';
+                        div.innerHTML = `
+                            <span>${name} - ${showValue} (${periodText[item.period]})
+                            <span style="font-size:0.95em;color:#aaa;">${currency === 'usd' ? ` (${rawCost} دلار)` : ''}</span></span>
+                            ${createItemActions(type, index)}
+                        `;
+                        container.appendChild(div);
+                    });
+                };
+                render(serverListContainer, state.servers, 'server');
+                render(domainListContainer, state.domains, 'domain');
+                render(otherCostListContainer, state.otherCosts, 'otherCost');
+
+                document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', handleStartEdit));
+                document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', handleDeleteItem));
+            };
+
+            // تبدیل اعداد انگلیسی به فارسی
+            const toPersianNumber = (input) => {
+                if (typeof input === 'number') input = input.toString();
+                if (!input || input === 'NaN') return '۰';
+                const faDigits = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+                return input.replace(/[0-9]/g, d => faDigits[d]);
+            };
+            const renderPlans = (calculations) => {
+                plansTableBody.innerHTML = '';
+                const discount = state.customPlan.discount > 0 ? Math.min(state.customPlan.discount, 100) : 0;
+                state.plans.forEach((plan, index) => {
+                    // محاسبه قیمت و سود خالص هر پلن
+                    const userDailyCostNoProfit = calculations.userDailyCostNoProfit;
+                    const userDailyCostWithProfit = calculations.userDailyCostWithProfit;
+                    const trafficCostNoProfit = calculations.trafficCostNoProfit;
+                    const trafficCostWithProfit = calculations.trafficCostWithProfit;
+                    const planBaseCost = (userDailyCostNoProfit * plan.duration) + (trafficCostNoProfit * plan.traffic);
+                    const planPrice = (userDailyCostWithProfit * plan.duration) + (trafficCostWithProfit * plan.traffic);
+                    const planPriceDiscounted = discount > 0 ? planPrice * (1 - discount / 100) : planPrice;
+                    const planNetProfit = planPrice - planBaseCost;
+                    const planNetProfitDiscounted = planPriceDiscounted - planBaseCost;
+                    // محاسبه نقطه سر به سر (تعداد پلن لازم برای پوشش هزینه‌های ثابت ماهانه) بر اساس قیمت نهایی
+                    let breakEvenCount = 0;
+                    if (planPriceDiscounted > 0) {
+                        const monthlyFixedCost = (calculations.totalDailyFixed || 0) * 30;
+                        breakEvenCount = Math.ceil(monthlyFixedCost / planPriceDiscounted);
+                    }
+                    // تعیین کلاس و استایل برای سود خالص منفی
+                    let profitClass = 'number-value';
+                    let profitStyle = 'font-size:1.05rem;';
+                    if (planNetProfit < 0) {
+                        profitStyle += 'color:#ff3b3b;';
+                    }
+                    let profitDiscountedClass = 'number-value';
+                    let profitDiscountedStyle = 'color:#1dbf73;font-size:0.82rem;margin-top:1px;line-height:1.5;';
+                    if (planNetProfitDiscounted < 0) {
+                        profitDiscountedStyle += 'color:#ff3b3b;';
+                    }
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${plan.name}</td>
+                        <td>${toPersianNumber(plan.duration)}</td>
+                        <td>${toPersianNumber(plan.traffic)}</td>
+                        <td>
+                            <div style="display:flex;flex-direction:column;align-items:center;">
+                                <span class="number-value" style="font-size:1.05rem;${discount > 0 ? 'text-decoration:line-through;' : ''}">${isNaN(planPrice) ? '۰' : Math.round(planPrice).toLocaleString('fa-IR')}</span>
+                                ${discount > 0 ? `<span class=\"number-value\" style=\"color:#1dbf73;font-size:0.82rem;margin-top:1px;line-height:1.5;\">${isNaN(planPriceDiscounted) ? '۰' : Math.round(planPriceDiscounted).toLocaleString('fa-IR')}</span>` : ''}
+                                <span style="font-size:0.9rem;color:#888;">تومان</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display:flex;flex-direction:column;align-items:center;">
+                                <span class="number-value" style="font-size:1.05rem;">${isNaN(planBaseCost) ? '۰' : Math.round(planBaseCost).toLocaleString('fa-IR')}</span>
+                                <span style="font-size:0.9rem;color:#888;">تومان</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display:flex;flex-direction:column;align-items:center;">
+                                <span class="${profitClass}" style="${profitStyle}${discount > 0 ? 'text-decoration:line-through;' : ''}">${isNaN(planNetProfit) ? '۰' : Math.round(planNetProfit).toLocaleString('fa-IR')}</span>
+                                ${discount > 0 ? `<span class=\"${profitDiscountedClass}\" style=\"${profitDiscountedStyle}\">${isNaN(planNetProfitDiscounted) ? '۰' : Math.round(planNetProfitDiscounted).toLocaleString('fa-IR')}</span>` : ''}
+                                <span style="font-size:0.9rem;color:#888;">تومان</span>
+                            </div>
+                        </td>
+                        <td class="number-value">${breakEvenCount > 0 ? breakEvenCount.toLocaleString('fa-IR') : '۰'}</td>
+                        <td>${createItemActions('plan', index)}</td>
+                    `;
+                    plansTableBody.appendChild(row);
+                });
+                document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', handleDeleteItem));
+                document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', handleStartEdit));
+            };
+
+            const renderCostBreakdownChart = (costs) => {
+                const { server, domain, other } = costs;
+                const total = server + domain + other;
+
+                const getPercent = (value) => total > 0 ? (value / total) * 100 : 0;
+
+                const serverPercent = getPercent(server);
+                const domainPercent = getPercent(domain);
+                const otherPercent = getPercent(other);
+
+                serverBar.style.height = `${serverPercent}%`;
+                serverBarLabel.textContent = `${toPersianNumber(Math.round(serverPercent))}%`;
+                domainBar.style.height = `${domainPercent}%`;
+                domainBarLabel.textContent = `${toPersianNumber(Math.round(domainPercent))}%`;
+                otherBar.style.height = `${otherPercent}%`;
+                otherBarLabel.textContent = `${toPersianNumber(Math.round(otherPercent))}%`;
+            };
+
+            // موتور محاسبات و به‌روزرسانی نتایج
+            const updateAllCalculations = () => {
+                // محاسبه هزینه‌ها با توجه به واحد (تومان/دلار)
+                const dailyServerCost = state.servers.reduce((sum, s) => sum + getDailyCost(convertToToman(s.cost, s.currency || 'toman'), s.period), 0);
+                const dailyDomainCost = state.domains.reduce((sum, d) => sum + getDailyCost(convertToToman(d.cost, d.currency || 'toman'), d.period), 0);
+                const dailyOtherCost = state.otherCosts.reduce((sum, c) => sum + getDailyCost(convertToToman(c.amount, c.currency || 'toman'), c.period), 0);
+                const totalDailyFixed = dailyServerCost + dailyDomainCost + dailyOtherCost;
+
+                let totalUsers = parseInt(state.settings.totalUsers);
+                if (!totalUsers || totalUsers < 1) totalUsers = 1;
+                const userDailyCostNoProfit = totalDailyFixed / totalUsers;
+                const userDailyCostWithProfit = userDailyCostNoProfit * (1 + state.settings.maintenanceProfit / 100);
+
+                const trafficCostNoProfit = state.settings.trafficPrice > 0 ? state.settings.trafficPrice : 0;
+                const trafficCostWithProfit = trafficCostNoProfit * (1 + state.settings.trafficProfit / 100);
+
+                const duration = state.customPlan.duration > 0 ? state.customPlan.duration : 0;
+                const traffic = state.customPlan.traffic > 0 ? state.customPlan.traffic : 0;
+                const discount = state.customPlan.discount > 0 ? Math.min(state.customPlan.discount, 100) : 0;
+                const customPlanPrice = (userDailyCostWithProfit * duration) + (trafficCostWithProfit * traffic);
+                const customPlanBaseCost = (userDailyCostNoProfit * duration) + (trafficCostNoProfit * traffic);
+                const customPlanNetProfit = customPlanPrice - customPlanBaseCost;
+
+                // قیمت با تخفیف
+                let customPlanPriceDiscounted = customPlanPrice;
+                if (discount > 0) {
+                    customPlanPriceDiscounted = customPlanPrice * (1 - discount / 100);
+                }
+                // سود خالص با تخفیف
+                let customPlanNetProfitDiscounted = customPlanPriceDiscounted - customPlanBaseCost;
+
+                // نقطه سر به سر: تعداد پلن لازم برای پوشش هزینه‌های ثابت ماهانه (بر اساس قیمت با تخفیف)
+                let breakEvenCount = 0;
+                if (customPlanPriceDiscounted > 0) {
+                    const monthlyFixedCost = totalDailyFixed * 30;
+                    breakEvenCount = Math.ceil(monthlyFixedCost / customPlanPriceDiscounted);
+                }
+
+                // Update UI
+                serverDailyCostEl.textContent = formatCurrency(dailyServerCost);
+                domainDailyCostEl.textContent = formatCurrency(dailyDomainCost);
+                otherDailyCostEl.textContent = formatCurrency(dailyOtherCost);
+                totalDailyFixedCostEl.textContent = formatCurrency(totalDailyFixed);
+                totalMonthlyFixedCostEl.textContent = formatCurrency(totalDailyFixed * 30);
+                userDailyCostNoProfitEl.textContent = formatCurrency(userDailyCostNoProfit);
+                userDailyCostWithProfitEl.textContent = formatCurrency(userDailyCostWithProfit);
+                userMonthlyCostNoProfitEl.textContent = formatCurrency(userDailyCostNoProfit * 30);
+                userMonthlyCostWithProfitEl.textContent = formatCurrency(userDailyCostWithProfit * 30);
+                trafficCostNoProfitEl.textContent = formatCurrency(trafficCostNoProfit);
+                trafficCostWithProfitEl.textContent = formatCurrency(trafficCostWithProfit);
+
+                // قیمت پلن و قیمت با تخفیف
+                if (discount > 0 && customPlanPrice > 0) {
+                    customPlanPriceEl.textContent = formatCurrency(customPlanPrice);
+                    customPlanPriceEl.style.textDecoration = 'line-through';
+                    customPlanPriceDiscountedEl.style.display = 'inline-block';
+                    customPlanPriceDiscountedEl.textContent = formatCurrency(customPlanPriceDiscounted) + ' (با تخفیف)';
+                } else {
+                    customPlanPriceEl.textContent = formatCurrency(customPlanPrice);
+                    customPlanPriceEl.style.textDecoration = 'none';
+                    customPlanPriceDiscountedEl.style.display = 'none';
+                }
+
+                customPlanBaseCostEl.textContent = formatCurrency(customPlanBaseCost);
+
+                // سود خالص و سود خالص با تخفیف
+                if (discount > 0 && customPlanPrice > 0) {
+                    customPlanNetProfitEl.style.textDecoration = 'line-through';
+                    renderProfitValue(customPlanNetProfitEl, customPlanNetProfit);
+                    customPlanNetProfitDiscountedEl.style.display = 'inline-block';
+                    renderProfitValue(customPlanNetProfitDiscountedEl, customPlanNetProfitDiscounted, '(با تخفیف)');
+                } else {
+                    renderProfitValue(customPlanNetProfitEl, customPlanNetProfit);
+                    customPlanNetProfitEl.style.textDecoration = 'none';
+                    customPlanNetProfitDiscountedEl.style.display = 'none';
+                }
+
+                // محاسبه حداکثر پتانسیل تخفیف
+                let maxDiscount = customPlanPrice - customPlanBaseCost;
+                if (maxDiscount < 0) maxDiscount = 0;
+                customPlanMaxDiscountEl.textContent = formatCurrency(maxDiscount);
+                let maxDiscountPercent = 0;
+                if (customPlanPrice > 0) {
+                    maxDiscountPercent = (maxDiscount / customPlanPrice) * 100;
+                }
+                customPlanMaxDiscountPercentEl.textContent = `${maxDiscountPercent.toLocaleString('fa-IR', {maximumFractionDigits: 1})}٪`;
+                // نمایش نقطه سر به سر
+                const breakEvenEl = document.getElementById('custom-plan-break-even');
+                if (breakEvenEl) breakEvenEl.textContent = toPersianNumber(breakEvenCount.toLocaleString('fa-IR'));
+
+                renderCostBreakdownChart({ server: dailyServerCost, domain: dailyDomainCost, other: dailyOtherCost });
+                renderPlans({ userDailyCostNoProfit, userDailyCostWithProfit, trafficCostNoProfit, trafficCostWithProfit, totalDailyFixed });
+                saveState();
+
+                // --- اسنپ شات ---
+                updateSnapshot({
+                    dailyServerCost, dailyDomainCost, dailyOtherCost, totalDailyFixed, totalMonthlyFixed: totalDailyFixed * 30,
+                    userDailyCostNoProfit, userDailyCostWithProfit, trafficCostNoProfit, trafficCostWithProfit,
+                    customPlanPrice: customPlanPriceDiscounted, customPlanNetProfit: customPlanNetProfitDiscounted, breakEvenCount
+                });
+            };
+
+            // ساخت اسنپ شات متنی و تصویری
+                        function updateSnapshot(data) {
+                const lines = [];
+                lines.push('───────────────────────────────');
+                // بخش تنظیمات مهم
+                lines.push(`👥 کاربران فعال: ${toPersianNumber(state.settings.totalUsers)}`);
+                lines.push(`💰 سود نگهداری: ${toPersianNumber(state.settings.maintenanceProfit)}%`);
+                lines.push(`💸 قیمت هر گیگ ترافیک: ${formatCurrency(state.settings.trafficPrice)}`);
+                lines.push(`📈 سود ترافیک: ${toPersianNumber(state.settings.trafficProfit)}%`);
+                lines.push('───────────────────────────────');
+                // هزینه‌های ثابت و متغیر
+                lines.push('🧮 هزینه‌های ثابت (روزانه):');
+                lines.push(`   • سرورها: ${formatCurrency(data.dailyServerCost)}`);
+                lines.push(`   • دامنه‌ها: ${formatCurrency(data.dailyDomainCost)}`);
+                lines.push(`   • سایر: ${formatCurrency(data.dailyOtherCost)}`);
+                lines.push(`   ● جمع کل: ${formatCurrency(data.totalDailyFixed)}`);
+                lines.push(`   ● جمع کل ماهانه: ${formatCurrency(data.totalMonthlyFixed)}`);
+                lines.push('───────────────────────────────');
+                // هزینه هر کاربر و ترافیک
+                lines.push('👤 هزینه هر کاربر:');
+                lines.push(`   • روزانه (بدون سود): ${formatCurrency(data.userDailyCostNoProfit)}`);
+                lines.push(`   • روزانه (با سود): ${formatCurrency(data.userDailyCostWithProfit)}`);
+                lines.push(`   • ماهانه (بدون سود): ${formatCurrency(data.userDailyCostNoProfit * 30)}`);
+                lines.push(`   • ماهانه (با سود): ${formatCurrency(data.userDailyCostWithProfit * 30)}`);
+                lines.push(`   • هر گیگ ترافیک (بدون سود): ${formatCurrency(data.trafficCostNoProfit)}`);
+                lines.push(`   • هر گیگ ترافیک (با سود): ${formatCurrency(data.trafficCostWithProfit)}`);
+                lines.push('───────────────────────────────');
+                // پلن سفارشی
+                lines.push('🛒 پلن سفارشی شما:');
+                // محاسبه صحیح هزینه نگهداری پلن سفارشی (بدون سود)
+                const customBaseCost = (data.userDailyCostNoProfit * state.customPlan.duration) + (data.trafficCostNoProfit * state.customPlan.traffic);
+                lines.push(`   • قیمت فروش: ${formatCurrency(data.customPlanPrice)}`);
+                lines.push(`   • هزینه نگهداری (بدون سود): ${formatCurrency(customBaseCost)}`);
+                lines.push(`   • سود خالص: ${formatCurrency(data.customPlanPrice - customBaseCost)}`);
+                // محاسبه و نمایش حداکثر پتانسیل تخفیف
+                let maxDiscount = data.customPlanPrice - customBaseCost;
+                if (maxDiscount < 0) maxDiscount = 0;
+                let maxDiscountPercent = 0;
+                if (data.customPlanPrice > 0) {
+                    maxDiscountPercent = (maxDiscount / data.customPlanPrice) * 100;
+                }
+                lines.push(`   • حداکثر پتانسیل تخفیف: ${formatCurrency(maxDiscount)} (${maxDiscountPercent.toLocaleString('fa-IR', {maximumFractionDigits: 1})}٪)`);
+                lines.push(`   • نقطه سر به سر: ${toPersianNumber(data.breakEvenCount)} پلن`);
+                lines.push('───────────────────────────────');
+                // پلن‌های پیش‌فرض (جدول کامل)
+                if(state.plans.length > 0) {
+                    const discount = state.customPlan.discount > 0 ? Math.min(state.customPlan.discount, 100) : 0;
+                    lines.push('📋 پلن‌های پیش‌فرض:');
+                    state.plans.forEach((p,i)=>{
+                        const planBaseCost = (data.userDailyCostNoProfit * p.duration) + (data.trafficCostNoProfit * p.traffic);
+                        const planPrice = (data.userDailyCostWithProfit * p.duration) + (data.trafficCostWithProfit * p.traffic);
+                        const planPriceDiscounted = discount > 0 ? planPrice * (1 - discount / 100) : planPrice;
+                        const planNetProfitDiscounted = planPriceDiscounted - planBaseCost;
+                        let breakEvenCount = 0;
+                        if (planPriceDiscounted > 0) {
+                            const monthlyFixedCost = (data.totalDailyFixed || 0) * 30;
+                            breakEvenCount = Math.ceil(monthlyFixedCost / planPriceDiscounted);
+                        }
+                        // نمایش هر پلن به صورت سطری و مرتب
+                        lines.push(`• ${p.name}: مدت ${toPersianNumber(p.duration)} روز | حجم ${toPersianNumber(p.traffic)} گیگ | قیمت نهایی: ${formatCurrency(planPriceDiscounted)} | هزینه نگهداری: ${formatCurrency(planBaseCost)} | سود خالص: ${formatCurrency(planNetProfitDiscounted)} | نقطه سر به سر: ${toPersianNumber(breakEvenCount)}`);
+                    });
+                    lines.push('───────────────────────────────');
+                }
+
+                // نمایش در textarea (مخفی)
+                document.getElementById('snapshot-textarea').value = lines.join('\n');
+
+                // نمایش در canvas (عکس)
+                renderSnapshotCanvas(lines);
+                        }
+
+            // رندر اسنپ شات به صورت عکس روی canvas
+            function renderSnapshotCanvas(lines) {
+                const canvas = document.getElementById('snapshot-canvas');
+                const ctx = canvas.getContext('2d');
+                const font = '16px Vazirmatn, Tahoma, Arial, sans-serif';
+                ctx.font = font;
+                const lineHeight = 30;
+                const padding = 36;
+                const width = Math.max(600, ...lines.map(l => ctx.measureText(l).width)) + padding*2;
+                const height = lineHeight * lines.length + padding*2;
+                canvas.width = width;
+                canvas.height = height;
+                // پس‌زمینه
+                // تعیین رنگ‌ها بر اساس تم
+                // تشخیص تم فقط بر اساس کلاس dark-mode
+                const isDark = document.body.classList.contains('dark-mode');
+                const bgColor = isDark ? '#0a0a13' : '#ffffff';
+                const textColor = isDark ? '#f3f3fa' : '#23243a';
+                const titleColor = isDark ? '#9faaff' : '#1976d2';
+                const borderColor = isDark ? '#9faaff' : '#1976d2';
+                const sepColor = isDark ? '#444a6a' : '#bdbdbd';
+
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0,0,width,height);
+                // عنوان
+                ctx.fillStyle = titleColor;
+                ctx.font = 'bold 22px Vazirmatn, Tahoma, Arial, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('اسنپ شات خلاصه هزینه و قیمت‌گذاری', width/2, padding-10);
+                // متن
+                ctx.font = font;
+                ctx.textAlign = 'right';
+                ctx.fillStyle = textColor;
+                lines.forEach((line,i)=>{
+                    // خطوط جداکننده را با رنگ متفاوت نمایش بده
+                    if(line.startsWith('─')){
+                        ctx.strokeStyle = sepColor;
+                        ctx.beginPath();
+                        ctx.moveTo(padding, padding + 20 + i*lineHeight);
+                        ctx.lineTo(width-padding, padding + 20 + i*lineHeight);
+                        ctx.stroke();
+                    } else {
+                        ctx.fillText(line, width-padding, padding + 20 + i*lineHeight);
+                    }
+                });
+                // کادر دور
+                ctx.strokeStyle = borderColor;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(2,2,width-4,height-4);
+            }
+
+            // مدیریت دانلود اسنپ شات به صورت عکس
+
+            // مدیریت رویدادها و مقداردهی اولیه
+            const handleSettingsChange = () => {
+                state.settings.totalUsers = parseFloat(totalUsersInput.value) || 0;
+                state.settings.maintenanceProfit = parseFloat(maintenanceProfitInput.value) || 0;
+                state.settings.trafficPrice = parseFloat(trafficPriceInput.value) || 0;
+                state.settings.trafficProfit = parseFloat(trafficProfitInput.value) || 0;
+                updateAllCalculations();
+            };
+
+            const handleCustomPlanChange = () => {
+                state.customPlan.duration = parseFloat(customPlanDurationInput.value) || 0;
+                state.customPlan.traffic = parseFloat(customPlanTrafficInput.value) || 0;
+                state.customPlan.discount = parseFloat(customPlanDiscountInput.value) || 0;
+                updateAllCalculations();
+            };
+
+            const handleSaveItem = (type) => {
+                let itemData, modalId, formElements;
+                switch (type) {
+                    case 'server':
+                        formElements = { name: 'server-name', cost: 'server-cost', period: 'server-period', currency: 'server-currency' };
+                        itemData = {
+                            name: document.getElementById(formElements.name).value.trim(),
+                            cost: parseFloat(document.getElementById(formElements.cost).value),
+                            period: document.getElementById(formElements.period).value,
+                            currency: document.getElementById(formElements.currency).value
+                        };
+                        modalId = 'server-modal';
+                        break;
+                    case 'domain':
+                        formElements = { name: 'domain-name', cost: 'domain-cost', period: 'domain-period', currency: 'domain-currency' };
+                        itemData = {
+                            name: document.getElementById(formElements.name).value.trim(),
+                            cost: parseFloat(document.getElementById(formElements.cost).value),
+                            period: document.getElementById(formElements.period).value,
+                            currency: document.getElementById(formElements.currency).value
+                        };
+                        modalId = 'domain-modal';
+                        break;
+                    case 'otherCost':
+                        formElements = { name: 'other-cost-name', amount: 'other-cost-amount', period: 'other-cost-period', currency: 'other-cost-currency' };
+                        itemData = {
+                            name: document.getElementById(formElements.name).value.trim(),
+                            amount: parseFloat(document.getElementById(formElements.amount).value),
+                            period: document.getElementById(formElements.period).value,
+                            currency: document.getElementById(formElements.currency).value
+                        };
+                        modalId = 'other-cost-modal';
+                        break;
+                }
+
+                const nameValue = itemData.name;
+                const costValue = itemData.cost !== undefined ? itemData.cost : itemData.amount;
+                if (!nameValue || isNaN(costValue) || costValue <= 0) {
+                    alert('لطفا تمام فیلدها را به درستی و با مقدار مثبت وارد کنید.');
+                    return;
+                }
+                // جلوگیری از ذخیره آیتم دلاری بدون نرخ دلار
+                if (itemData.currency === 'usd' && (!usdRate || usdRate <= 0)) {
+                    alert('برای ثبت هزینه دلاری، ابتدا نرخ دلار را وارد کنید.');
+                    return;
+                }
+
+                if (editContext.type === type && editContext.index !== null) {
+                    state[type === 'otherCost' ? 'otherCosts' : type + 's'][editContext.index] = itemData;
+                } else {
+                    state[type === 'otherCost' ? 'otherCosts' : type + 's'].push(itemData);
+                }
+
+                closeModal(modalId);
+                renderLists();
+                updateAllCalculations();
+            };
+
+            const handleStartEdit = (e) => {
+                const btn = e.currentTarget;
+                const type = btn.dataset.type;
+                const index = parseInt(btn.dataset.index);
+                const item = state[type === 'otherCost' ? 'otherCosts' : type + 's'][index];
+
+                editContext = { type, index };
+
+                switch (type) {
+                    case 'server':
+                        document.getElementById('server-modal-title').textContent = 'ویرایش سرور';
+                        document.getElementById('save-server-btn').textContent = 'ذخیره تغییرات';
+                        document.getElementById('server-name').value = item.name;
+                        document.getElementById('server-cost').value = item.cost;
+                        document.getElementById('server-period').value = item.period;
+                        document.getElementById('server-currency').value = item.currency || 'toman';
+                        openModal('server-modal');
+                        break;
+                    case 'domain':
+                        document.getElementById('domain-modal-title').textContent = 'ویرایش دامنه';
+                        document.getElementById('save-domain-btn').textContent = 'ذخیره تغییرات';
+                        document.getElementById('domain-name').value = item.name;
+                        document.getElementById('domain-cost').value = item.cost;
+                        document.getElementById('domain-period').value = item.period;
+                        document.getElementById('domain-currency').value = item.currency || 'toman';
+                        openModal('domain-modal');
+                        break;
+                    case 'otherCost':
+                        document.getElementById('other-cost-modal-title').textContent = 'ویرایش هزینه';
+                        document.getElementById('save-other-cost-btn').textContent = 'ذخیره تغییرات';
+                        document.getElementById('other-cost-name').value = item.name;
+                        document.getElementById('other-cost-amount').value = item.amount;
+                        document.getElementById('other-cost-period').value = item.period;
+                        document.getElementById('other-cost-currency').value = item.currency || 'toman';
+                        openModal('other-cost-modal');
+                        break;
+                    case 'plan':
+                        document.getElementById('add-plan-modal-title').textContent = 'ویرایش پلن';
+                        document.getElementById('add-plan-btn').textContent = 'ذخیره تغییرات';
+                        document.getElementById('plan-name').value = item.name;
+                        document.getElementById('plan-duration').value = item.duration;
+                        document.getElementById('plan-traffic').value = item.traffic;
+                        openModal('add-plan-modal');
+                        break;
+                }
+            };
+
+            const handleDeleteItem = (e) => {
+                const btn = e.currentTarget;
+                const type = btn.dataset.type;
+                const index = parseInt(btn.dataset.index);
+
+                if (confirm('آیا از حذف این مورد اطمینان دارید؟')) {
+                    const targetArray = type === 'otherCost' ? 'otherCosts' : type + 's';
+                    state[targetArray].splice(index, 1);
+                    if (type !== 'plan') {
+                        renderLists();
+                    }
+                    updateAllCalculations();
+                }
+            };
+
+            const handleAddPlan = () => {
+                const name = document.getElementById('plan-name').value.trim();
+                const duration = parseFloat(document.getElementById('plan-duration').value);
+                const traffic = parseFloat(document.getElementById('plan-traffic').value);
+                if (!name || isNaN(duration) || isNaN(traffic) || duration <= 0 || traffic <= 0) {
+                    alert('لطفا تمام فیلدهای پلن را به درستی و با مقدار مثبت وارد کنید.');
+                    return;
+                }
+                const newPlan = { name, duration, traffic };
+                if (editContext && editContext.type === 'plan' && editContext.index !== null) {
+                    state.plans[editContext.index] = newPlan;
+                } else {
+                    state.plans.push(newPlan);
+                }
+                closeModal('add-plan-modal');
+                updateAllCalculations(); 
+            };
+
+            
+            const init = () => {
+                loadState();
+                const savedTheme = localStorage.getItem('theme_v3');
+                themeToggle.checked = savedTheme ? savedTheme === 'dark' : true;
+                applyTheme(themeToggle.checked);
+
+                totalUsersInput.value = state.settings.totalUsers;
+                maintenanceProfitInput.value = state.settings.maintenanceProfit;
+                trafficPriceInput.value = state.settings.trafficPrice;
+                trafficProfitInput.value = state.settings.trafficProfit;
+
+                customPlanDurationInput.value = state.customPlan.duration;
+                customPlanTrafficInput.value = state.customPlan.traffic;
+                customPlanDiscountInput.value = state.customPlan.discount || '';
+
+                [totalUsersInput, maintenanceProfitInput, trafficPriceInput, trafficProfitInput].forEach(input => input.addEventListener('input', handleSettingsChange));
+                [customPlanDurationInput, customPlanTrafficInput, customPlanDiscountInput].forEach(input => input.addEventListener('input', handleCustomPlanChange));
+
+                showAddServerModalBtn.addEventListener('click', () => {
+                    document.getElementById('server-modal-title').textContent = 'افزودن سرور جدید';
+                    document.getElementById('save-server-btn').textContent = 'افزودن';
+                    document.getElementById('server-name').value = '';
+                    document.getElementById('server-cost').value = '';
+                    document.getElementById('server-period').value = 'daily';
+                    editContext = { type: null, index: null };
+                    openModal('server-modal');
+                });
+                showAddDomainModalBtn.addEventListener('click', () => {
+                    document.getElementById('domain-modal-title').textContent = 'افزودن دامنه جدید';
+                    document.getElementById('save-domain-btn').textContent = 'افزودن';
+                    document.getElementById('domain-name').value = '';
+                    document.getElementById('domain-cost').value = '';
+                    document.getElementById('domain-period').value = 'yearly';
+                    editContext = { type: null, index: null };
+                    openModal('domain-modal');
+                });
+                showAddOtherCostModalBtn.addEventListener('click', () => {
+                    document.getElementById('other-cost-modal-title').textContent = 'افزودن هزینه دیگر';
+                    document.getElementById('save-other-cost-btn').textContent = 'افزودن';
+                    document.getElementById('other-cost-name').value = '';
+                    document.getElementById('other-cost-amount').value = '';
+                    document.getElementById('other-cost-period').value = 'daily';
+                    editContext = { type: null, index: null };
+                    openModal('other-cost-modal');
+                });
+                showAddPlanModalBtn.addEventListener('click', () => {
+                    editContext = { type: null, index: null };
+                    document.getElementById('add-plan-modal-title').textContent = 'افزودن پلن پیش‌فرض';
+                    document.getElementById('add-plan-btn').textContent = 'افزودن';
+                    document.getElementById('plan-name').value = '';
+                    document.getElementById('plan-duration').value = '';
+                    document.getElementById('plan-traffic').value = '';
+                    openModal('add-plan-modal');
+                });
+
+                saveServerBtn.addEventListener('click', () => handleSaveItem('server'));
+                saveDomainBtn.addEventListener('click', () => handleSaveItem('domain'));
+                saveOtherCostBtn.addEventListener('click', () => handleSaveItem('otherCost'));
+                addPlanBtn.addEventListener('click', handleAddPlan);
+
+                // --- دکمه دانلود اسنپ شات (عکس) ---
+                const downloadBtn = document.getElementById('download-snapshot-btn');
+                if(downloadBtn){
+                    downloadBtn.addEventListener('click',()=>{
+                        const canvas = document.getElementById('snapshot-canvas');
+                        const link = document.createElement('a');
+                        link.download = 'vpn-cost-snapshot.png';
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                        document.getElementById('snapshot-download-msg').style.display='block';
+                        setTimeout(()=>{document.getElementById('snapshot-download-msg').style.display='none';},1500);
+                    });
+                }
+
+                renderLists();
+                updateAllCalculations();
+            };
+
+            init();
+        });
+    </script>
+</body>
+</html>
